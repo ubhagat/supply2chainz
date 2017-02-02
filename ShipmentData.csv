@@ -1,0 +1,170 @@
+SHIPVIA_CODE,CARRIER_CODE,SERVICELEVEL_CODE,SHIPVIA_DESC,ACTUAL_SHIP_CODE,MODE,KB Comments,Moniker ,Parcel or LTL,Include / Exclude
+SLCY-3AW,SLCY,SLCY-3AW,SLCY-3AW,,,Invalid entry,#N/A,#N/A,Exclude
+FSP1,KLSA,FSP1,FSPNext Day,,,No longer a Dell carrier,#N/A,#N/A,Exclude
+FSP2,KLSA,FSP2,FSP Second Day,,,No longer a Dell carrier,#N/A,#N/A,Exclude
+FSP3,KLSA,FSP3,FSP Third Day,,,No longer a Dell carrier,#N/A,#N/A,Exclude
+ODFL,ODFL,ODFL,Old Dominion,,,No longer a Dell carrier,GRND,LTL,Include
+ODFP,ODFL,ODFL,Old Dominion,,,No longer a Dell carrier,#N/A,#N/A,Exclude
+3AM,3AM,3AM,3AM,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+3CH,3CH,3CH,3CH,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+3LA,3LA,3LA,3LA,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+3NY,3NY,3NY,3NY,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+RFC,3PL,,RFC,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+AM1,AM1,,AM1,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+AMC,AMC,AMC,AMC,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+3NDY,BRIGHT-RT,BRIGHT-RT,3NDY,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+FGDY,BRIGHT-RT,BRIGHT-RT,FGDY,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+ECFC,ECFC,,ECFC,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+INDY,FEDX,INDY,FedEx Next Day INDY,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+FG1,FG1,FG1,FG1,,,No longer in use - MCID is closed,#N/A,#N/A,Exclude
+EAG1,EAG1,,EAG1,,,No longer in use - Now using the CEVA ship via's,#N/A,#N/A,Exclude
+EAG2,EAG2,,EAG2,,,No longer in use - Now using the CEVA ship via's,#N/A,#N/A,Exclude
+EAG3,EAG3,,EAG3,,,No longer in use - Now using the CEVA ship via's,#N/A,#N/A,Exclude
+3AV,3AV,3AV,3AV,,SHUTTLE,,#N/A,#N/A,Exclude
+3AW,3AW,3AW,3AW,,SHUTTLE,,#N/A,#N/A,Exclude
+3EG3,3EG3,3EG3,Genco 3PL 2T Facility,,SHUTTLE,,#N/A,#N/A,Exclude
+3EP,3EP,3EP,3EP,,SHUTTLE,,#N/A,#N/A,Exclude
+3NV,3NV,3NV,3NV,,SHUTTLE,,#N/A,#N/A,Exclude
+BMC,BMC,BMC,BMC,,SHUTTLE,,#N/A,#N/A,Exclude
+DHLC,DHLC,DHLC,DHL Express,C,PARCEL,,International,Parcel,Exclude
+DABR,DNZA,DABR,DHL Global Forwarding (Brazil),@,INTL HWA,,International,#N/A,Exclude
+DDAO,DNZA,DDAO,DHL Global Forwarding (CO85/88),@,INTL HWA,,International,#N/A,Exclude
+DNZ1,DNZA,DNZ1,DHL Next Day HWA,@,HWA,,Nextday,LTL,Include
+DNZ2,DNZA,DNZ2,DHL 2nd Day HWA,@,HWA,,2DAY,LTL,Include
+DNZ3,DNZA,DNZ3,DHL 3rd Day HWA,@,HWA,,3rdDAY,LTL,Include
+DNZA,DNZA,DNZA,DHL Global Forwarding (CO20 + LATAM ROW),@,INTL HWA,,International,#N/A,Exclude
+VALS,EUSA,VALS,CEVA VALS,+,LTL,,2DAY,LTL,Include
+CEV1,EUSA,CEV1,Ceva Next Day,V,HWA,,Nextday,LTL,Include
+CEV2,EUSA,CEV2,Ceva Second Day,V,HWA,,2DAY,LTL,Include
+CEV3,EUSA,CEV3,Ceva Third Day,V,HWA,,3rdDAY,LTL,Include
+CEVG,EUSA,CEVG,Ceva Ground,V,LTL,,GRND,LTL,Include
+CALH,EUSA,CALH,Ceva - Canada Line Haul,,TL,,International,TL,Exclude
+FDR1,FEDX,FDR1,FedEx - Nex Day Resi,K,PARCEL,,Nextday,Parcel,Include
+FDR2,FEDX,FDR2,FedEx - 2nd Day Resi,R,PARCEL,,2DAY,Parcel,Include
+FDR3,FEDX,FDR3,FedEx - 3rd Day Resi,},PARCEL,,3rdDAY,Parcel,include
+FED1,FEDX,FED1,FedEx Std Overnight,K,PARCEL,,Nextday,Parcel,Include
+FED2,FEDX,FED2,FedEx 2 Day,R,PARCEL,,2DAY,Parcel,Include
+FED3,FEDX,FED3,FedEx Express Saver,},PARCEL,,3rdDAY,Parcel,Include
+FEDP,FEDX,FEDP,FedEx Priority,F,PARCEL,,Nextday,Parcel,Include
+FNS1,FEDX,FNS1,FedEx - Next Day (No Sig Required),K,PARCEL,,Nextday,Parcel,Include
+FNS2,FEDX,FNS2,FedEx - 2 Day (No Sig Required),R,PARCEL,,2DAY,Parcel,include
+FNS3,FEDX,FNS3,FedEx - 3 Day (No Sig Required),},PARCEL,,3rdDAY,Parcel,Include
+FNSP,FEDX,FNSP,FedEx Priority (No Sig Required),F,PARCEL,,Nextday,Parcel,Include
+FXA1,FEDX,FXA1,FedEx Express HWA - Next Day,5,HWA,,Nextday,LTL,Include
+FXA2,FEDX,FXA2,FedEx Express HWA - 2 Day,G,HWA,,2DAY,LTL,Include
+FXA3,FEDX,FXA3,FedEx Express HWA - 3 Day,W,HWA,,3rdDAY,LTL,Include
+FG3,FG3,FG3,FG3,,SHUTTLE,,shuttle,#N/A,Exclude
+FGE,FGE,FGE,FGE,,SHUTTLE,,shuttle,#N/A,Exclude
+FGN,FGN,FGN,FGN,,SHUTTLE,,shuttle,#N/A,Exclude
+FXFE,FXFE,FXFE,FedExFreight - Priority,#,LTL,,GRND,LTL,Include
+FXNL,FXNL,FXNL,FedExFreight - Economy,#,LTL,,GRND,LTL,Include
+GENC,GENR,GENC,Genco Shuttle,Q,SHUTTLE,,shuttle,#N/A,Exclude
+CLLQ,GENR,CLLQ,Best Buy - Coyote,Q,CCA,,cca,#N/A,Exclude
+GENR,GENR,GENR,Generic carrier,Q,CCA,,cca,#N/A,Exclude
+K717,GENR,K717,Best Buy - Koch Dedicated,Q,CCA,,cca,#N/A,Exclude
+KSTS,GENR,KSTS,Best Buy - Koch Trucking,Q,CCA,,cca,#N/A,Exclude
+LRGR,GENR,LRGR,Best Buy - Landstar,Q,CCA,,cca,#N/A,Exclude
+QPMT,GENR,QPMT,Best Buy - J.B. Hunt,Q,CCA,,cca,#N/A,Exclude
+SCNN,GENR,SCNN,Best Buy - Schneider National,Q,CCA,,cca,#N/A,Exclude
+UPGF,GENR,UPGF,Best Buy - UPS Freight,Q,CCA,,cca,#N/A,Exclude
+KHNN,KHNN,KHNN,Kuehne And Nagel (LatAm),8,INTL HWA,,International,LTL,Exclude
+KNAR,KHNN,KNAR,Kuehne & Nagel (Argentina) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNCL,KHNN,KNCL,Kuehne & Nagel (Chile) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNCO,KHNN,KNCO,Kuehne & Nagel (Colombia) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNCR,KHNN,KNCR,Kuehne & Nagel (Costa Rica) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNEC,KHNN,KNEC,Kuehne & Nagel (Ecuador) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNMX,KHNN,KNMX,Kuehne & Nagel (Mexico) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNPA,KHNN,KNPA,Kuehne & Nagel (Panama) via HWA,8,INTL HWA,,International,LTL,Exclude
+KNPE,KHNN,KNPE,Kuehne & Nagel (Peru) via HWA,8,INTL HWA,,International,LTL,Exclude
+KOAR,KHNN,KOAR,Kuehne & Nagel (Argentina) via Ocean,8,OCEAN,,International,Ocean,Exclude
+KOCL,KHNN,KOCL,Kuehne & Nagel (Chile) via Ocean,8,OCEAN,,International,Ocean,Exclude
+KOCO,KHNN,KOCO,Kuehne & Nagel (Colombia) via Ocean,8,OCEAN,,International,Ocean,Exclude
+KOPE,KHNN,KOPE,Kuehne & Nagel (Peru) via Ocean,8,OCEAN,,International,Ocean,Exclude
+MCLT,MCLT,MCLT,CRANEWorldwideLgstcs,,TL,,GRND,TL,Include
+MAC1,MOAV,MAC1,Mach1 - Next Day HWA,D,HWA,,Nextday,LTL,Include
+MAC2,MOAV,MAC2,Mach1 - 2nd Day HWA,D,HWA,,2DAY,LTL,Include
+MAC3,MOAV,MAC3,Mach1 - 3rd Day HWA,D,HWA,,3rdDAY,LTL,Include
+MOAV,MOAV,MOAV,Mach1 Ground,D,LTL,,GRND,LTL,Include
+MRAF,MRAF,MRAF,DW Morgan,,LTL,,#N/A,#N/A,Exclude
+MTLE,MTLE,MTLE,MODE Transportation,,TL,,GRND,TL,Include
+MXC,MXC,,MXC,,SHUTTLE,,Shuttle,Shuttle,Exclude
+PAAF,PAAF,PAAF,Pilot Freight Services,,LTL,,GRND,LTL,Include
+PRLA,PRLA,PRLA,Purolator Ground,4,PARCEL,,International,Parcel,Exclude
+FNSH,RPSI,FNSH,FedEx Home (No Sig Required),[,PARCEL,,HOME,Parcel,include
+FDRG,RPSI,FDRG,FedEx Ground - Residential,),PARCEL,,GRND,Parcel,Include
+FNSG,RPSI,FNSG,FdX Gd Rsi N Sgn Rqd,),PARCEL,,GRND,Parcel,Include
+FEDG,RPSI,FEDG,FedEx Ground,),PARCEL,,GRND,Parcel,Include
+FEDH,RPSI,FEDH,FedEx Home Delivery,[,PARCEL,,HOME,Parcel,Include
+FGCH,RPSI,FGCH,FedEx Ground - Chicago,),PARCEL,,GRND,Parcel,Include
+FGCO,RPSI,FGCO,FedEx Ground - Cold,),PARCEL,,GRND,Parcel,Include
+FGDA,RPSI,FGDA,FedEx Ground - Dallas,),PARCEL,,GRND,Parcel,Include
+FGHA,RPSI,FGHA,FedEx Ground - Hagerstown,),PARCEL,,GRND,Parcel,Include
+FGHO,RPSI,FGHO,FedEx Ground - Hot,),PARCEL,,GRND,Parcel,Include
+FGOR,RPSI,FGOR,FedEx Ground - Orlando,),PARCEL,,GRND,Parcel,Include
+FGTW,RPSI,FGTW,FedEx Ground - MidNight,),PARCEL,,GRND,Parcel,Include
+FGWO,RPSI,FGWO,FedEx Ground - WoodBridge,),PARCEL,,GRND,Parcel,Include
+FHCH,RPSI,FHCH,FedEx Home Delivery - Chicago,[,PARCEL,,HOME,Parcel,Include
+FHCO,RPSI,FHCO,FedEx Home Delivery - Cold,[,PARCEL,,HOME,Parcel,Include
+FHDA,RPSI,FHDA,FedEx Home Delivery - Dallas,[,PARCEL,,HOME,Parcel,Include
+FHHA,RPSI,FHHA,FedEx Home Delivery - Hagerstown,[,PARCEL,,HOME,Parcel,Include
+FHHO,RPSI,FHHO,FedEx Home Delivery - Hot,[,PARCEL,,HOME,Parcel,Include
+FHOR,RPSI,FHOR,FedEx Home Delivery - Orlando,[,PARCEL,,HOME,Parcel,Include
+FHTW,RPSI,FHTW,FedEx Home Delivery - MidNight,[,PARCEL,,HOME,Parcel,Include
+FHWO,RPSI,FHWO,FedEx Home Delivery - WoodBridge,[,PARCEL,,HOME,Parcel,Include
+SAIA,SAIA,SAIA,SAIA,$,LTL,,GRND,LTL,Include
+SCA,SCA,SCA,SCA,,SHUTTLE,,Shuttle,#N/A,Exclude
+SLCC,SLCY,SLCC,Schneider - Central LTL,1,LTL,,GRND,LTL,Include
+SLCM,SLCY,SLCM,Schneider - Widwest LTL,1,LTL,,GRND,LTL,Include
+SLCN,SLCY,SLCN,Schneider - North LTL,1,LTL,,GRND,LTL,Include
+SLCS,SLCY,SLCS,Schneider - South LTL,1,LTL,,GRND,LTL,Include
+SLCW,SLCY,SLCW,Schneider - West LTL,1,LTL,,GRND,LTL,Include
+SLCY,SLCY,SLCY,Schneider,1,TL,,GRND,FTL,Include
+TRDM,TRDM,TRDM,TradeManagementSolutions - TL,,TL,,GRND,TL,Exclude
+UPF1,UPSF,UPF1,UPS Freight Next Day,,HWA,,Nextday,LTL,Include
+UPF2,UPSF,UPF2,UPS Freight 2nd Day,,HWA,,2DAY,LTL,Include
+UPF3,UPSF,UPF3,UPS Freight 3rd Day,,HWA,,3rdDAY,LTL,Include
+UPSF,UPSF,UPSF,UPS-SCS LATAM,S,INTL HWA,,International,LTL,Exclude
+UPSM,UPSM,UPSM,UPS Mail Innovations,H,PARCEL,,GRND,Parcel,Include
+UPNS,UPSN,UPNS,UPS Resi No Sign Rqd,,PARCEL,,HOME,Parcel,Include
+UPSB,UPSN,UPSB,UPS Second Day,B,PARCEL,,2DAY,Parcel,Include
+UPSE,UPSN,UPSE,UPS Next Day,N,PARCEL,,Nextday,Parcel,Include
+UPSG,UPSN,UPSG,UPS Ground,U,PARCEL,,GRND,Parcel,Include
+UPSP,UPSN,UPSP,UPS SurePost,,PARCEL,,GRND,Parcel,Include
+UPSR,UPSN,UPSR,UPS Ground Resi,,PARCEL,,HOME,Parcel,Include
+VST1,VSTQ,VST1,Champagne Logistics - Next Day,=,LTL,,Nextday,LTL,Include
+VST2,VSTQ,VST2,Champagne Logistics - 2nd Day,=,LTL,,2DAY,LTL,Include
+VST3,VSTQ,VST3,Champagne Logistics - 3rd Day,=,LTL,,3rdDAY,LTL,Include
+VSTQ,VSTQ,VSTQ,Champagne Logistics - LTL / TL,=,LTL,,GRND,LTL,Include
+YCHD,YCHD,YCHD,YCHD,,,,#N/A,#N/A,Exclude
+ODFR,ODFL,,ODFL – Reseller (Disti Fulfillment),,LTL,,GRND,LTL,Include
+FDRP,FedEx,,FedEx Priority,,PARCEL,,Nextday,Parcel,Include
+GENE,Generic,,Generic Carrier (CCA),,CCA,,CCA,LTL,Exclude
+FAX1,FedEx HWA,,FedEx HWA – Next Day,,HWA,,Nextday,LTL,Include
+NULL,#N,,#N/A,,Null,,#N/A,#N/A,Exclude
+UPS1,UPS Air,,UPS Air – Next Day,,PARCEL,,Nextday,Parcel,Include
+USPS,APO,,APO / FPO,,PARCEL,,GRND,Parcel,Include
+WWT,Generic,,Generic Carrier (CCA),,CCA,,CCA,#N/A,Exclude
+DHL1,DHL HWA,,DHL HWA – Next Day,,HWA,,Nextday,LTL,Include
+EXDO,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+REMR,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+HJBT,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+CHAM,Champagne,,Champagne Logistics,,LTL,,GRND,LTL,Include
+FEXF,FedEx,,FedEx Freight - Priority,,HWA,,3rdDAY,LTL,Include
+UPSS,UPS Air,,UPS Air – 2nd Day,,PARCEL,,3rdDAY,Parcel,Include
+COYT,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+PAXP,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+AIIH,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+AIT,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+CFTL,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+SNCK,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+AVRT,Generic,,Generic Carrier (CCA),,CCA,,cca,#N/A,Exclude
+DHL2,DHL HWA,,DHL HWA – 2nd Day,,HWA,,2DAY,LTL,Include
+FX1O,FedEx Express,,FedEx Express – Next Day,,PARCEL,,Nextday,Parcel,Include
+FDCO,FedEx,,FedEx Ground,,PARCEL,,GRND,Parcel,Include
+FAX2,FedEx HWA,,FedEx HWA – 2nd Day,,HWA,,2DAY,LTL,Include
+UPSX,UPS,,UPS Air,,PARCEL,,#N/A,#N/A,Exclude
+PILT,Generic,,Generic Carrier (CCA),,CCA,,,Exclude,Exclude
+POST,Generic,,Generic Carrier (CCA),,CCA,,,Exclude,Exclude
+RLCR,Generic,,Generic Carrier (CCA),,CCA,,,Exclude,Exclude
+FX2O,FedEx Express,,FedEx Express – 2nd Day,,PARCEL,,2Day,Parcel,Include
+FDHM,FedEx,,FedEx Home,,PARCEL,,Home ,Parcel,Include
