@@ -148,7 +148,7 @@ for k, v in dict.iteritems():
                 total_weight += float(current_row[5])
                 additional_weight_time += float(current_row[5]) * (relative_shiptime - float(current_row[6]))
                 number_of_shipments_consolidated += 1
-                shipMap.append([shipNumber, current_row[2], [0], current_row[10]])
+                shipMap.append([shipNumber, current_row[2], current_row[0], current_row[10]])
 
 
             #Add current cost, current number of shipments, current total weight,
