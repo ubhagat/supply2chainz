@@ -197,9 +197,10 @@ for k, v in dict.iteritems():
             if total_weight > 150:
                 parcel_cost = float(parcel_cost) + total_weight - 150
 
-            if (ltl_cost >= parcel_cost):
+            if (ltl_cost >= float(parcel_cost)):
                 shipDataTemp.append(parcel_cost)
                 shipDataTemp.append("Parcel")
+
             else:
                 shipDataTemp.append(ltl_cost)
                 shipDataTemp.append("LTL")
