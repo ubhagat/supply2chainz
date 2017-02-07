@@ -48,7 +48,7 @@ for row in reader:
 
 shipData = [["New Shipment ID", "Ship via code", "IP Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]]
 
-shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type"]]
+shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
 
 shipNumber = 0
 for k, v in dict.iteritems():
@@ -148,7 +148,7 @@ for k, v in dict.iteritems():
                 total_weight += float(current_row[5])
                 additional_weight_time += float(current_row[5]) * (relative_shiptime - float(current_row[6]))
                 number_of_shipments_consolidated += 1
-                shipMap.append([shipNumber, current_row[0], current_row[10]])
+                shipMap.append([shipNumber, current_row[0], current_row[10], current_row[9]])
 
 
             #Add current cost, current number of shipments, current total weight,
@@ -201,7 +201,7 @@ for k, v in dict.iteritems():
         #["New Shipment ID", "IP Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]
 
         shipData.append([shipNumber, row[2], ipdate, zipcode, customer, row[11], row[5], 1, 0, row[11], row[10]])
-        shipMap.append([shipNumber, row[0], row[10]])
+        shipMap.append([shipNumber, row[0], row[10], row[9]])
         shipNumber += 1
 
 with open("out_shipData.csv", 'w') as outfile:
