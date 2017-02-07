@@ -6,9 +6,6 @@ csvfile = open("scriptData.csv", 'rU')
 reader = csv.reader(csvfile, dialect=csv.excel_tab)
 header = reader.next()
 
-
-parcel_rates = [5.95, 6.12, 6.31, 6.78, 7.46, 7.55, 7.63, 7.92, 8.42, 8.69, 9.00, 9.22, 9.44, 9.60, 9.73, 10.26, 10.34, 10.46, 10.58, 10.77, 11.76, 13.26, 14.76, 16.26, 17.76, 18.77, 19.31, 19.90, 20.50, 21.13, 21.71, 21.96, 22.30, 22.50, 22.77, 23.05, 23.29, 23.50, 23.75, 23.99, 24.25, 24.43, 24.71, 24.87, 25.04, 25.25, 25.46, 25.66, 25.85, 25.96, 26.34, 26.75, 27.23, 27.63, 28.06, 28.45, 28.90, 29.33, 29.76, 30.14, 30.61, 30.99, 31.54, 31.83, 32.29, 32.72, 33.20, 33.59, 34.06, 34.41]
-#['#NAME?', 'SHIP_DATE', 'BOX_VOL_WT', 'SHIPVIA_CODE', 'IP_DATE', 'ZIP CODE', 'Question Mark time (in Days)']
 dict = {}
 
 for row in reader:
@@ -33,12 +30,28 @@ costDict = {}
 for row in costReader:
     costDict[row[0]] = row
 
+#Reading the data for Parcel Rates
+ParcelRatesFile = open("Parcel_Rates.csv", 'rU')
+rateReader = csv.reader(ParcelRatesFile)
+parcelRatesDict = {}
+for row in rateReader:
+    parcelRatesDict[row[0] + "-" + row[1]] = row[2]
+
+#Readingt the Parcel Zones
+ParcelZonesFile = open("ParcelZones.csv", 'rU')
+zoneReader = csv.reader(ParcelZonesFile)
+zoneDict = {}
+for row in zoneReader:
+    zoneDict[row[0]] = row[1]
+
+
 #Creating the dictionary to figure out what type of shipment it is.
 shipFile = open("ShipmentData.csv", 'rU')
 shipReader = csv.reader(shipFile)
 shipDict = {}
 for row in shipReader:
     shipDict[row[0]] = row[8]
+
 
 finalList = [["WaybillNum", "Number of things", "Shipvia_code", "Ip Date", "Zip Code", "Weight", "Processing Time", "CustomerID", "Vendor Site ID", "Sales Order ID", "Parcel Type", "Transportation Cost", "Transit Time"]]
 for i in dict.values():
@@ -59,8 +72,12 @@ for i in dict.values():
     wt = float(i[5])
     cost = 0
     if parcelType == "Parcel":
-        indx = min(69, int(math.floor(wt)))
-        cost = parcel_rates[indx]
+        try:
+            zone = zoneDict[str(int(i[4]))]
+        except:
+            zone = "6"
+        wt_ind = min(150, int(math.ceil(wt)))
+        cost = parcelRatesDict[str(wt_ind) + "-" + zone]
     else:
         if wt <= 500:
             cost = max(cost_row[0], min(wt * cost_row[1], 501 * cost_row[2]))

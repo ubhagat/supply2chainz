@@ -14,7 +14,19 @@ reader = csv.reader(csvfile)
 header = reader.next()
 dict = {}
 
+#Reading the data for Parcel Rates
+ParcelRatesFile = open("Parcel_Rates.csv", 'rU')
+rateReader = csv.reader(ParcelRatesFile)
+parcelRatesDict = {}
+for row in rateReader:
+    parcelRatesDict[row[0] + "-" + row[1]] = row[2]
 
+#Readingt the Parcel Zones
+ParcelZonesFile = open("ParcelZones.csv", 'rU')
+zoneReader = csv.reader(ParcelZonesFile)
+zoneDict = {}
+for row in zoneReader:
+    zoneDict[row[0]] = row[1]
 
 #Reading the file to calculate the Transportation Cost and Transit time
 costFile = open("TransportationData.csv", 'rU')
@@ -22,9 +34,6 @@ costReader = csv.reader(costFile)
 costDict = {}
 for row in costReader:
     costDict[row[0]] = row
-
-parcel_rates = [5.95, 6.12, 6.31, 6.78, 7.46, 7.55, 7.63, 7.92, 8.42, 8.69, 9.00, 9.22, 9.44, 9.60, 9.73, 10.26, 10.34, 10.46, 10.58, 10.77, 11.76, 13.26, 14.76, 16.26, 17.76, 18.77, 19.31, 19.90, 20.50, 21.13, 21.71, 21.96, 22.30, 22.50, 22.77, 23.05, 23.29, 23.50, 23.75, 23.99, 24.25, 24.43, 24.71, 24.87, 25.04, 25.25, 25.46, 25.66, 25.85, 25.96, 26.34, 26.75, 27.23, 27.63, 28.06, 28.45, 28.90, 29.33, 29.76, 30.14, 30.61, 30.99, 31.54, 31.83, 32.29, 32.72, 33.20, 33.59, 34.06, 34.41]
-
 
 #[ 0 - "WaybillNum", 1 - "Number of things", 2 - "Shipvia_code", 3 -  "Ip Date", 4 - "Zip Code", 5 - "Weight", 6 - "Processing Time", 7 - "CustomerID",8 - "Vendor Site ID",9 - "Sales Order ID",10 - "Parcel Type",11 - "Transportation Cost",12 - "Transit Time"]
 
@@ -179,10 +188,14 @@ for k, v in dict.iteritems():
             else:
                 ltl_cost = max(cost_row[0], total_weight * cost_row[6])
             #Parcel Rate
-            if total_weight < 70:
-                parcel_cost = parcel_rates[int(math.floor(total_weight))]
-            else:
-                parcel_cost = 34.41 + 0.7 * (int(math.floor(total_weight)) - 70)
+            try:
+                zone = zoneDict[str(int(zipcode))]
+            except:
+                zone = "6"
+            wt_ind = int(math.ceil(min(150, total_weight)))
+            parcel_cost = parcelRatesDict[str(wt_ind) + "-" + zone]
+            if total_weight > 150:
+                parcel_cost = float(parcel_cost) + total_weight - 150
 
             if (ltl_cost >= parcel_cost):
                 shipDataTemp.append(parcel_cost)
