@@ -14,7 +14,19 @@ reader = csv.reader(csvfile)
 header = reader.next()
 dict = {}
 
+#Reading the data for Parcel Rates
+ParcelRatesFile = open("Parcel_Rates.csv", 'rU')
+rateReader = csv.reader(ParcelRatesFile)
+parcelRatesDict = {}
+for row in rateReader:
+    parcelRatesDict[row[0] + "-" + row[1]] = row[2]
 
+#Readingt the Parcel Zones
+ParcelZonesFile = open("ParcelZones.csv", 'rU')
+zoneReader = csv.reader(ParcelZonesFile)
+zoneDict = {}
+for row in zoneReader:
+    zoneDict[row[0]] = row[1]
 
 #Reading the file to calculate the Transportation Cost and Transit time
 costFile = open("TransportationData.csv", 'rU')
@@ -23,14 +35,10 @@ costDict = {}
 for row in costReader:
     costDict[row[0]] = row
 
-parcel_rates = [5.95, 6.12, 6.31, 6.78, 7.46, 7.55, 7.63, 7.92, 8.42, 8.69, 9.00, 9.22, 9.44, 9.60, 9.73, 10.26, 10.34, 10.46, 10.58, 10.77, 11.76, 13.26, 14.76, 16.26, 17.76, 18.77, 19.31, 19.90, 20.50, 21.13, 21.71, 21.96, 22.30, 22.50, 22.77, 23.05, 23.29, 23.50, 23.75, 23.99, 24.25, 24.43, 24.71, 24.87, 25.04, 25.25, 25.46, 25.66, 25.85, 25.96, 26.34, 26.75, 27.23, 27.63, 28.06, 28.45, 28.90, 29.33, 29.76, 30.14, 30.61, 30.99, 31.54, 31.83, 32.29, 32.72, 33.20, 33.59, 34.06, 34.41]
-
-
 #[ 0 - "WaybillNum", 1 - "Number of things", 2 - "Shipvia_code", 3 -  "Ip Date", 4 - "Zip Code", 5 - "Weight", 6 - "Processing Time", 7 - "CustomerID",8 - "Vendor Site ID",9 - "Sales Order ID",10 - "Parcel Type",11 - "Transportation Cost",12 - "Transit Time"]
 
 for row in reader:
     defstr = row[3] + "%" + row[4]
-
     try:
         tempData = dict[defstr]
         tempData.append(row)
@@ -46,7 +54,7 @@ for row in reader:
 #
 # print c,d,e
 
-shipData = [["New Shipment ID", "Ship via code", "IP Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]]
+shipData = [["New Shipment ID", "Ship via code", "IP Date",  "3 digit Zip Code", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]]
 
 shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
 
@@ -129,7 +137,7 @@ for k, v in dict.iteritems():
             values_at_each_state = num2
             bounds = typ2
 
-        #["New Shipment ID", "IP Date",  "3 digit Zip Code", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]
+        #["New Shipment ID", "IP Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]
         ipdate, zipcode = k.split("%")
 
         for alpha in range(len(values_at_each_state)):
@@ -146,7 +154,7 @@ for k, v in dict.iteritems():
                 relative_shiptime = bounds[alpha]
                 total_original_cost += float(current_row[11])
                 total_weight += float(current_row[5])
-                additional_weight_time += float(current_row[5]) * (relative_shiptime - float(current_row[6]))
+                additional_weight_time += float(current_row[5]) * ((relative_shiptime / 10.0 )- float(current_row[6]))
                 number_of_shipments_consolidated += 1
                 shipMap.append([shipNumber, current_row[0], current_row[10], current_row[9]])
 
@@ -157,11 +165,16 @@ for k, v in dict.iteritems():
             shipDataTemp.append(number_of_shipments_consolidated)
             shipDataTemp.append(additional_weight_time)
 
+            #This is used a little later
+            zone = zoneDict[str(int(zipcode))]
+
+
             #This is to analyze what the best shipment mechanism would be
-            try:
-                current_row = costDict[zipcode]
-            except:
-                current_row = costDict['010']
+            if len(zipcode) == 2:
+                zipcode = '0' + zipcode
+            if int(zipcode) > 915:
+                zipcode = '915'
+            current_row = costDict[zipcode]
             cost_row = []
             for z in current_row[2:9]:
                 cost_row.append(float(z[1:]))
@@ -179,18 +192,24 @@ for k, v in dict.iteritems():
             else:
                 ltl_cost = max(cost_row[0], total_weight * cost_row[6])
             #Parcel Rate
-            if total_weight < 70:
-                parcel_cost = parcel_rates[int(math.floor(total_weight))]
-            else:
-                parcel_cost = 34.41 + 0.7 * (int(math.floor(total_weight)) - 70)
 
-            if (ltl_cost >= parcel_cost):
+            wt_ind = int(math.ceil(min(150, total_weight)))
+            parcel_cost = parcelRatesDict[str(wt_ind) + "-" + zone]
+            parcel_cost = float(parcel_cost)
+            if total_weight > 150:
+                parcel_cost += (total_weight - 150)*0.5
+
+            if (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost):
                 shipDataTemp.append(parcel_cost)
                 shipDataTemp.append("Parcel")
-            else:
+
+            elif (ltl_cost < parcel_cost and parcel_cost <= total_original_cost):
                 shipDataTemp.append(ltl_cost)
                 shipDataTemp.append("LTL")
 
+            else:
+                shipDataTemp.append(total_original_cost)
+                shipDataTemp.append("Don't change, other things are more expensive")
             shipData.append(shipDataTemp)
             shipNumber += 1
 

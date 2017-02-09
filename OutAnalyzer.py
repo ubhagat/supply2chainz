@@ -39,7 +39,6 @@ for row in costReader:
 
 for row in reader:
     defstr = row[3] + "%" + row[4] + "%" + row[7]
-
     try:
         tempData = dict[defstr]
         tempData.append(row)
@@ -155,7 +154,7 @@ for k, v in dict.iteritems():
                 relative_shiptime = bounds[alpha]
                 total_original_cost += float(current_row[11])
                 total_weight += float(current_row[5])
-                additional_weight_time += float(current_row[5]) * (relative_shiptime - float(current_row[6]))
+                additional_weight_time += float(current_row[5]) * ((relative_shiptime / 10.0 )- float(current_row[6]))
                 number_of_shipments_consolidated += 1
                 shipMap.append([shipNumber, current_row[0], current_row[10], current_row[9]])
 
@@ -166,11 +165,16 @@ for k, v in dict.iteritems():
             shipDataTemp.append(number_of_shipments_consolidated)
             shipDataTemp.append(additional_weight_time)
 
+            #This is used a little later
+            zone = zoneDict[str(int(zipcode))]
+
+
             #This is to analyze what the best shipment mechanism would be
-            try:
-                current_row = costDict[zipcode]
-            except:
-                current_row = costDict['010']
+            if len(zipcode) == 2:
+                zipcode = '0' + zipcode
+            if int(zipcode) > 915:
+                zipcode = '915'
+            current_row = costDict[zipcode]
             cost_row = []
             for z in current_row[2:9]:
                 cost_row.append(float(z[1:]))
@@ -188,23 +192,24 @@ for k, v in dict.iteritems():
             else:
                 ltl_cost = max(cost_row[0], total_weight * cost_row[6])
             #Parcel Rate
-            try:
-                zone = zoneDict[str(int(zipcode))]
-            except:
-                zone = "6"
+
             wt_ind = int(math.ceil(min(150, total_weight)))
             parcel_cost = parcelRatesDict[str(wt_ind) + "-" + zone]
+            parcel_cost = float(parcel_cost)
             if total_weight > 150:
-                parcel_cost = float(parcel_cost) + total_weight - 150
+                parcel_cost += (total_weight - 150)*0.5
 
-            if (ltl_cost >= float(parcel_cost)):
+            if (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost):
                 shipDataTemp.append(parcel_cost)
                 shipDataTemp.append("Parcel")
 
-            else:
+            elif (ltl_cost < parcel_cost and parcel_cost <= total_original_cost):
                 shipDataTemp.append(ltl_cost)
                 shipDataTemp.append("LTL")
 
+            else:
+                shipDataTemp.append(total_original_cost)
+                shipDataTemp.append("Don't change, other things are more expensive")
             shipData.append(shipDataTemp)
             shipNumber += 1
 

@@ -12,16 +12,15 @@ for row in reader:
     #print row
     #tempData = [WaybillNum, Number of things, Shipvia_code, Ip Date, Zip Code, Weight, Processing Time]
 
-    row = row[0].split(',')
-    if (row[13] == "ESJ"):
-        try:
+    row = row[0].split('%')
+    try:
 
-            tempData = dict[row[0]]
-            tempData[1] = tempData[1] + 1
-            tempData[5] = float(tempData[5]) + float(row[8])
-            dict[row[0]] = tempData
-        except:
-            dict[row[0]] = [row[0], 1, row[9], row[17], row[32], row[8], row[33], row[16], row [13], row[15]]
+        tempData = dict[row[0]]
+        tempData[1] = tempData[1] + 1
+        tempData[5] = float(tempData[5]) + float(row[8])
+        dict[row[0]] = tempData
+    except:
+        dict[row[0]] = [row[0], 1, row[9], row[17], row[32], row[8], row[33], row[16], row [13], row[15]]
 
 #Reading the file to calculate the Transportation Cost and Transit time
 costFile = open("TransportationData.csv", 'rU')
@@ -61,21 +60,26 @@ for i in dict.values():
         temp.append(shipDict[i[2]])
         parcelType = shipDict[i[2]]
     except:
+        #This exception case is for rows that don't have an associated LTL or Parcel Type
         temp.append("Parcel")
-    try:
-        current_row = costDict[i[4]]
-    except:
-        current_row = costDict['010']
+    # try:
+    #     current_row = costDict[i[4]]
+    # except:
+    #     current_row = costDict['010']
+
+    zipcode = i[4]
+    if len(zipcode) == 2:
+        zipcode = '0' + zipcode
+    if int(zipcode) > 915:
+        zipcode = '915'
+    current_row = costDict[zipcode]
     cost_row = []
     for z in current_row[2:9]:
         cost_row.append(float(z[1:]))
     wt = float(i[5])
     cost = 0
     if parcelType == "Parcel":
-        try:
-            zone = zoneDict[str(int(i[4]))]
-        except:
-            zone = "6"
+        zone = zoneDict[str(int(i[4]))]
         wt_ind = min(150, int(math.ceil(wt)))
         cost = parcelRatesDict[str(wt_ind) + "-" + zone]
     else:
