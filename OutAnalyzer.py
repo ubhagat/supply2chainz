@@ -2,6 +2,7 @@ import csv
 import numpy
 import math
 import datetime
+import random
 
 #This script to translate the out.csv file to a
 #combination of things that should have been consolidated.
@@ -12,7 +13,7 @@ import datetime
 
 #This following section reads the data that are on the shipment level.
 #Ignores the header
-csvfile = open("out_2.csv", 'r')
+csvfile = open("shipmentLevelData.csv", 'r')
 reader = csv.reader(csvfile, dialect=csv.excel_tab, delimiter=',')
 next(reader, None)
 
@@ -44,6 +45,10 @@ costDict = {}
 for row in costReader:
     costDict[row[0]] = row
 
+productsFile = open("products.csv", 'rU')
+productReader = csv.reader(productsFile)
+productList = next(productReader)
+
 
 #This is the list to be written with the different distribution of numbers for different holding windows
 #The first list contains the numbers that will be put in the file
@@ -54,9 +59,37 @@ analysisList = [["Holding Window", "Total Cost", "Consolidated Cost", "Savings",
 #[[0 - "WaybillNum", 1 - "Number of things", 2-  "Shipvia_code", 3 - "ship Date", 4 - "Zip Code", 5 - "Weight", 6 - "Processing Time", 7 - "CustomerID", 8 -  "Vendor Site ID", 9 - "Sales Order ID", 10 - "Time from ShipDate", 11 - "Work Center",12 -  "Parcel Type",13 -  "Transportation Cost", 14  -"Transit Time"]]
 
 #VARIABLES
-sizeOfHoldingWindows = [1,2,3]
+startTime = 6
+endTime = 20
+numberOfSimulations = 2
+holdingWindowList = []
+#This code produces random holding windows.
+#Note that holding windows are randomly created and only take windows between 6 - 18.
+def eligibleForParcel(v, indices):
+    for i in indices:
+        if v[i][11] in productList:
+            return False
+    return True
+for i in range(numberOfSimulations):
+    tempList = [startTime]
+    while(True):
+        currentLastHour = tempList[-1]
+        newInt = random.randint(1,3)
+        if (newInt + currentLastHour > endTime):
+            tempList.append(24)
+            break
+        elif (newInt + currentLastHour == endTime):
+            tempList.append(endTime)
+            tempList.append(24)
+            break
+        else:
+            tempList.append(newInt + currentLastHour)
 
-for x in sizeOfHoldingWindows:
+    holdingWindowList.append(tempList)
+
+
+
+for bounds in holdingWindowList:
 
     #These are the two new files that will be created as part of output for each holdingwindow
     #The first file contains information on how it should be shipped, based on the consildation at the end of holding windows
@@ -96,15 +129,11 @@ for x in sizeOfHoldingWindows:
         if lenv > 1:
 
             #These bounds correspond to the end of the holding hours.
-            #For example, x = 1 gives [1,2,3.. 24]
-            bounds = range(0 + x, 24 + x, x)
+            # #For example, x = 1 gives [1,2,3.. 24]
+            # bounds = range(0 + x, 24 + x, x)
 
             #Creates an empty list to store the relevant indices for each "holding window"
             indices_to_use = [[] for p in range(len(bounds))]
-
-            #basically dynamically stores len at each to make it easy to check.
-            values_at_each_state = [0] * len(bounds)
-
 
             #Now look at the data for all the candidates eligible for consolidation
             for row_indx in range(len(v)):
@@ -126,7 +155,6 @@ for x in sizeOfHoldingWindows:
                     if hour < alp:
                         break
                 indices_to_use[indx].append(row_indx)
-                values_at_each_state[indx] = values_at_each_state[indx] + 1
 
             #Note loop ends
 
@@ -134,12 +162,10 @@ for x in sizeOfHoldingWindows:
             shipDate, zipcode, customer = k.split("%")
 
             #For each holding window ->
-            for alpha in range(len(values_at_each_state)):
+            for alpha in range(len(bounds)):
 
                 #If that holding window actually contains anything
-                #TODO remove values_at_each_state, this is kinda redundant.
-
-                if values_at_each_state[alpha]:
+                if indices_to_use[alpha]:
 
                     #TODO for now, we have one shipment for all of this. Maybe later, what we need to do is decide what how to break down the shipments.
                     #For example, this would have to be done in case of large LTL and parcel and such things, I am not sure what the best way to handle that is
@@ -245,11 +271,17 @@ for x in sizeOfHoldingWindows:
 
 
                     #Just pick the cheapest of the lot.
-                    #TODO add a constraint where specific products can't be consolidated to parcel, but only LTL.
-                    if (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost):
+                    if (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost and eligibleForParcel(v, indices_to_use[alpha])):
                         shipDataTemp.append(parcel_cost)
                         shipDataTemp.append("Parcel")
                         analysisConsolidatedCost += parcel_cost
+
+
+                    elif (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost):
+                        shipDataTemp.append(ltl_cost)
+                        shipDataTemp.append("LTL")
+                        analysisConsolidatedCost += ltl_cost
+
 
                     elif (ltl_cost < parcel_cost and parcel_cost <= total_original_cost):
                         shipDataTemp.append(ltl_cost)
@@ -291,18 +323,18 @@ for x in sizeOfHoldingWindows:
             shipNumber += 1
 
     #This list containts the details for the total costs, etc. depending on the different holding windows.
-    analysisList.append([x, analysisTotalCost, analysisConsolidatedCost, analysisTotalCost - analysisConsolidatedCost, analysisWeightTime])
+    analysisList.append([str(bounds), analysisTotalCost, analysisConsolidatedCost, analysisTotalCost - analysisConsolidatedCost, analysisWeightTime])
 
     #Write the adequate files, note that this currently this prints for each holding window.
-    with open("out_shipData_" + str(x) +  ".csv", 'w') as outfile:
+    with open("output/out_shipData_" + str(bounds) +  ".csv", 'w') as outfile:
         writer = csv.writer(outfile, delimiter = ',')
         writer.writerows(shipData)
 
-    with open("out_shipMap_" + str(x) +  ".csv", 'w') as outfile:
+    with open("output/out_shipMap_" + str(bounds) +  ".csv", 'w') as outfile:
         writer = csv.writer(outfile, delimiter = ',')
         writer.writerows(shipMap)
 
 #Print some of the details across different holding windows.
-with open("analysis.csv", 'w') as outfile:
+with open("output/analysis.csv", 'w') as outfile:
     writer = csv.writer(outfile, delimiter = ',')
     writer.writerows(analysisList)

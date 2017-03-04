@@ -16,15 +16,16 @@ for row in reader:
     #tempData = [WaybillNum, Number of things, Shipvia_code, Ip Date, Zip Code, Weight, Processing Time]
 
     row = row[0].split('|')
-    try:
+    if row[19] == 'L':
+        try:
 
-        tempData = dict[row[0]]
-        tempData[1] = tempData[1] + 1
-        tempData[5] = float(tempData[5]) + float(row[8])
-        dict[row[0]] = tempData
-    except:
+            tempData = dict[row[0]]
+            tempData[1] = tempData[1] + 1
+            tempData[5] = float(tempData[5]) + float(row[8])
+            dict[row[0]] = tempData
+        except:
 
-        dict[row[0]] = [row[0], 1, row[9], row[1], row[24], row[8], row[32], row[16], row [13], row[15], row[34], row[30]]
+            dict[row[0]] = [row[0], 1, row[9], row[1], row[24], row[8], row[32], row[16], row [13], row[15], row[34], row[30]]
 
 #The following section reads the data corresponding to the transportation data costs
 #This file is in the format 3DZ ,State , Minimum Cost ,500,1000,2000,5000,10000, 10001+ lb,Transit Time
@@ -122,6 +123,6 @@ for i in dict.values():
     finalList.append(temp)
 
 #This section writes the final shipment level data to a CSV file which is analyzed in outAnalyzer.
-with open("out_2.csv", 'w', newline = '') as outfile:
+with open("shipmentLevelData.csv", 'w', newline = '') as outfile:
     writer = csv.writer(outfile, delimiter = ',')
     writer.writerows(finalList)
