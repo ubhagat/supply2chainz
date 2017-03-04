@@ -1,0 +1,6 @@
+List of constraints that need to be added.
+
+1. 8 PM Clause
+2. No more than 50 pounds in a multi-something parcel
+3. No multi parcels
+4. 
