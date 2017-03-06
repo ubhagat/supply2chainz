@@ -61,7 +61,10 @@ analysisList = [["Holding Window", "Total Cost", "Consolidated Cost", "Savings",
 #VARIABLES
 startTime = 6
 endTime = 20
-numberOfSimulations = 2
+numberOfSimulations = 50
+max_multipack_wt = 100
+multipacking = True
+
 holdingWindowList = []
 #This code produces random holding windows.
 #Note that holding windows are randomly created and only take windows between 6 - 18.
@@ -97,7 +100,7 @@ for bounds in holdingWindowList:
 
     shipData = [["New Shipment ID", "Ship via code", "IP Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight * Time", "consolidated cost", "Parcel Type", "Max Ship Time", "Min Ship Time"]]
 
-    shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
+    #shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
 
     #List of new shipments
     shipNumber = 0
@@ -212,7 +215,7 @@ for bounds in holdingWindowList:
                         number_of_shipments_consolidated += 1
 
                         #shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
-                        shipMap.append([shipNumber, current_row[0], current_row[13], current_row[9]])
+                        #shipMap.append([shipNumber, current_row[0], current_row[13], current_row[9]])
 
 
                     shipTimesList.sort()
@@ -257,52 +260,140 @@ for bounds in holdingWindowList:
                     else:
                         ltl_cost = max(cost_row[0], total_weight * cost_row[6])
 
-
-
                     #Parcel Rate
-
                     wt_ind = int(math.ceil(min(150, total_weight)))
                     parcel_cost = parcelRatesDict[str(wt_ind) + "-" + zone]
                     parcel_cost = float(parcel_cost)
 
                     #TODO everything with a parcel rate of more than 150 is treated as an extra cost for the weight above 150.
                     if total_weight > 150:
-                        parcel_cost += (total_weight - 150)*0.3
+                        parcel_cost += 1000000
 
 
                     #Just pick the cheapest of the lot.
-                    if (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost and eligibleForParcel(v, indices_to_use[alpha])):
-                        shipDataTemp.append(parcel_cost)
-                        shipDataTemp.append("Parcel")
-                        analysisConsolidatedCost += parcel_cost
 
 
-                    elif (ltl_cost >= parcel_cost and parcel_cost <= total_original_cost):
+                    #Case 1: LTL is cheaper
+                    if (ltl_cost < parcel_cost):
                         shipDataTemp.append(ltl_cost)
-                        shipDataTemp.append("LTL")
+                        shipDataTemp.append("Consolidated LTL")
                         analysisConsolidatedCost += ltl_cost
 
+                        #Takes into account what the first and the last shiptimes are, for each and adds it to the data.
 
-                    elif (ltl_cost < parcel_cost and parcel_cost <= total_original_cost):
+                        tempDateObj= datetime.datetime.strptime(str(shipTimesList[0]), "%H.%M")
+                        shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
+                        tempDateObj= datetime.datetime.strptime(str(shipTimesList[-1]), "%H.%M")
+                        shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
+                        shipData.append(shipDataTemp)
+
+                        shipNumber += 1
+
+                        #Case 2: Parcel is cheaper, but it HAS to be sent as LTL
+                    elif (ltl_cost >= parcel_cost and not eligibleForParcel(v, indices_to_use[alpha])):
                         shipDataTemp.append(ltl_cost)
-                        shipDataTemp.append("LTL")
+                        shipDataTemp.append("LTL - Forced")
                         analysisConsolidatedCost += ltl_cost
+
+                        #Takes into account what the first and the last shiptimes are, for each and adds it to the data.
+
+                        tempDateObj= datetime.datetime.strptime(str(shipTimesList[0]), "%H.%M")
+                        shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
+                        tempDateObj= datetime.datetime.strptime(str(shipTimesList[-1]), "%H.%M")
+                        shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
+                        shipData.append(shipDataTemp)
+
+                        shipNumber += 1
+
 
                     else:
-                        shipDataTemp.append(total_original_cost)
-                        shipDataTemp.append("Don't change, other things are more expensive")
-                        analysisConsolidatedCost += total_original_cost
-                    shipData.append(shipDataTemp)
+                        #multipacking allowed
+                        if (multipacking):
+                            shipDate, zipcode, customer = k.split("%")
+                            zone = zoneDict[str(int(zipcode))]
+
+                            weightList = []
+                            indicesList = []
+                            templist = []
+                            current_weight = 0.0
+                            for shipment_index in indices_to_use[alpha]:
+
+                                weight = float(v[shipment_index][5])
+
+                                if weight + current_weight > max_multipack_wt:
+                                    weightList.append(current_weight)
+                                    indicesList.append(templist)
+                                    templist = [shipment_index]
+                                    current_weight = weight
+                                else:
+                                    current_weight += weight
+                                    templist.append(shipment_index)
+
+                            indicesList.append(templist)
+                            weightList.append(current_weight)
+
+                            for gamma in range(len(indicesList)):
+
+                                if indicesList[gamma]:
+                                    wt_ind = int(math.ceil(min(150, weightList[gamma])))
+                                    parcel_cost = float(parcelRatesDict[str(wt_ind) + "-" + zone])
+
+                                    currentCost = 0.0
+                                    wtTime = 0.0
+
+                                    for kappa in indicesList[gamma]:
+                                        row = v[kappa]
+
+                                        #Look at each individual shipment here.
+                                        time_str1 =  row[10]
+                                        time_obj1 = datetime.datetime.strptime(time_str1, "%I:%M:%S %p")
+                                        hour1 = time_obj1.hour
+                                        mint1 = time_obj1.minute
+                                        #time one is the correct representation like 12:20 - 12.20, time2 is the number of hours 12:20 - 12.33333 hours.
+
+                                        time1 = round(hour1 * 1.0 + mint1 / 100, 2)
+
+                                        #For each order, this contains all the shiptimes, for further analysis, seeing when they are gonna be shipped out, and the other stuff.
+                                        shipTimesList.append(time1)
+
+                                        #Make the relevant calculations for the weight, costs, etc.
+                                        currentCost += float(row[13])
+
+                                        #Measure for holding time Maybe?
+                                        additional_weight_time += float(row[5]) * (bounds[alpha] - float(time2))
 
 
-                    #Takes into account what the first and the last shiptimes are, for each and adds it to the data.
+                                    tempDateObj= datetime.datetime.strptime(str(shipTimesList[0]), "%H.%M")
+                                    maxTime = tempDateObj.strftime("%I:%M %p")
+                                    tempDateObj= datetime.datetime.strptime(str(shipTimesList[-1]), "%H.%M")
+                                    minTime = tempDateObj.strftime("%I:%M %p")
 
-                    tempDateObj= datetime.datetime.strptime(str(shipTimesList[0]), "%H.%M")
-                    shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
-                    tempDateObj= datetime.datetime.strptime(str(shipTimesList[-1]), "%H.%M")
-                    shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
+                                    shipData.append([shipNumber, v[0][2], shipDate, zipcode, customer, currentCost, weightList[gamma], len(indicesList[gamma]), wtTime, parcel_cost, "Parcel, ineligible because of multipacking", maxTime, minTime])
 
-                    shipNumber += 1
+                                    analysisConsolidatedCost += parcel_cost
+                                    shipNumber += 1
+
+                        else:
+                            #If multipacking is not allowed, ship it individually.
+                            #Currently using the BIG ELSE stuff (because nothing changes there)
+
+                            for shipment_index in indices_to_use[alpha]:
+                                shipDate, zipcode, customer = k.split("%")
+                                row = v[shipment_index]
+
+                                #["New Shipment ID", "Ship Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight*Time", "consolidated cost", "Parcel Type"]
+
+
+                                #TODO Maybe look at what the cheapest way of shipping is and then ship it that way. This will address cases in which it might have been cheaper to ship it differently.
+                                shipData.append([shipNumber, row[2], shipDate, zipcode, customer, row[13], row[5], 1, 0, row[13], row[12] + ", ineligible because of multipacking", row[10], row[10]])
+                                #shipMap.append([shipNumber, row[0], row[12], row[9]])
+
+                                #This is already handled above
+                                #analysisTotalCost += float(row[13])
+                                analysisConsolidatedCost += float(row[13])
+
+                                shipNumber += 1
+
 
         else:
 
@@ -314,8 +405,9 @@ for bounds in holdingWindowList:
 
 
             #TODO Maybe look at what the cheapest way of shipping is and then ship it that way. This will address cases in which it might have been cheaper to ship it differently.
+
             shipData.append([shipNumber, row[2], shipDate, zipcode, customer, row[13], row[5], 1, 0, row[13], row[12], row[10], row[10]])
-            shipMap.append([shipNumber, row[0], row[12], row[9]])
+            #shipMap.append([shipNumber, row[0], row[12], row[9]])
 
             analysisTotalCost += float(row[13])
             analysisConsolidatedCost += float(row[13])
@@ -330,9 +422,9 @@ for bounds in holdingWindowList:
         writer = csv.writer(outfile, delimiter = ',')
         writer.writerows(shipData)
 
-    with open("output/out_shipMap_" + str(bounds) +  ".csv", 'w') as outfile:
-        writer = csv.writer(outfile, delimiter = ',')
-        writer.writerows(shipMap)
+    # with open("output/out_shipMap_" + str(bounds) +  ".csv", 'w') as outfile:
+    #     writer = csv.writer(outfile, delimiter = ',')
+    #     writer.writerows(shipMap)
 
 #Print some of the details across different holding windows.
 with open("output/analysis.csv", 'w') as outfile:
