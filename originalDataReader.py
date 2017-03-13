@@ -3,12 +3,12 @@ import csv
 import math
 
 #Opens the Raw CSV file containing original Data.
-csvfile = open("scriptData.csv", "r",encoding='utf-8', errors='ignore')
+csvfile = open("scriptData.csv", "r")
 reader = csv.reader(csvfile, dialect=csv.excel_tab)
 next(reader, None)
 
 dict = {}
-
+x = 0
 #Puts each row in the data into a Dictionary with the Waybill as the key.
 #This is also counts the number of times each Waybill appears in the column "Number of Things"
 for row in reader:
@@ -17,6 +17,7 @@ for row in reader:
 
     row = row[0].split('|')
     if row[19] == 'L':
+        x += 1
         try:
 
             tempData = dict[row[0]]
@@ -122,7 +123,10 @@ for i in dict.values():
     temp.append(current_row[9])
     finalList.append(temp)
 
+print x
+'''
 #This section writes the final shipment level data to a CSV file which is analyzed in outAnalyzer.
 with open("shipmentLevelData.csv", 'w', newline = '') as outfile:
     writer = csv.writer(outfile, delimiter = ',')
     writer.writerows(finalList)
+'''

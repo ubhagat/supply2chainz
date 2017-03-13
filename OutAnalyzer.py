@@ -52,18 +52,18 @@ productList = next(productReader)
 
 #This is the list to be written with the different distribution of numbers for different holding windows
 #The first list contains the numbers that will be put in the file
-analysisList = [["Holding Window", "Total Cost", "Consolidated Cost", "Savings", "Extra Weight * Time"]]
+analysisList = [["Holding Window", "Total Cost", "Consolidated Cost", "Savings", "Extra Weight * Time", "Number of Shipments that were consolidated", "Number of Shipments consolidated into"]]
 
 #This is the list (with indices) of different attributes that are currently present in out.py file
 
 #[[0 - "WaybillNum", 1 - "Number of things", 2-  "Shipvia_code", 3 - "ship Date", 4 - "Zip Code", 5 - "Weight", 6 - "Processing Time", 7 - "CustomerID", 8 -  "Vendor Site ID", 9 - "Sales Order ID", 10 - "Time from ShipDate", 11 - "Work Center",12 -  "Parcel Type",13 -  "Transportation Cost", 14  -"Transit Time"]]
 
 #VARIABLES
-startTime = 6
-endTime = 20
+startTime = 1
+endTime = 24
 numberOfSimulations = 50
 max_multipack_wt = 100
-multipacking = True
+multipacking = False
 
 holdingWindowList = []
 #This code produces random holding windows.
@@ -73,11 +73,26 @@ def eligibleForParcel(v, indices):
         if v[i][11] in productList:
             return False
     return True
-for i in range(numberOfSimulations):
+
+
+
+def shipMapper(shipmentNumber, v, indices_to_use, consolidationType, newShipmentType, holdingWindowShippedAt):
+    temp = []
+    for i in indices_to_use:
+        current_row = v[i]
+        shipDate = current_row[3]
+        currentShipType = current_row[12]
+        currentShipTime = current_row[10]
+        waybillNum = current_row[0]
+        temp.append([shipmentNumber, waybillNum, shipDate, currentShipType, newShipmentType, consolidationType, currentShipTime, holdingWindowShippedAt])
+    return temp
+
+
+for i in [1,2,3,4,6,8]: #range(numberOfSimulations):
     tempList = [startTime]
     while(True):
         currentLastHour = tempList[-1]
-        newInt = random.randint(1,3)
+        newInt = random.randint(i,i)#1,8)
         if (newInt + currentLastHour > endTime):
             tempList.append(24)
             break
@@ -100,7 +115,7 @@ for bounds in holdingWindowList:
 
     shipData = [["New Shipment ID", "Ship via code", "IP Date",  "3 digit Zip Code", "Customer ID", "Current Cost", "Current Total Weight", "Number of consolidated shipments", "Cumulative Weight * Time", "consolidated cost", "Parcel Type", "Max Ship Time", "Min Ship Time"]]
 
-    #shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
+    shipMap = [["shipmentNumber", "waybillNum", "shipDate", "currentShipType", "newShipmentType", "consolidationType", "currentShipTime", "holdingWindowShippedAt"]]
 
     #List of new shipments
     shipNumber = 0
@@ -110,6 +125,8 @@ for bounds in holdingWindowList:
     analysisTotalCost = 0.0
     analysisConsolidatedCost = 0.0
     analysisWeightTime = 0.0
+    analysisNumberOfShipmentsThatWereConsolidated = 0
+    analysisNumberOfShipmentsConsolidateInto = 0
 
 
     #Reads out.csv file, and separates it to a dictionary with k,v pairs, key = shipdate + zipcode + customerID
@@ -170,9 +187,6 @@ for bounds in holdingWindowList:
                 #If that holding window actually contains anything
                 if indices_to_use[alpha]:
 
-                    #TODO for now, we have one shipment for all of this. Maybe later, what we need to do is decide what how to break down the shipments.
-                    #For example, this would have to be done in case of large LTL and parcel and such things, I am not sure what the best way to handle that is
-
                     #[shipNum, Shipvia_code, ..]
                     shipDataTemp = [shipNumber, v[0][2], shipDate, zipcode, customer]
 
@@ -213,6 +227,12 @@ for bounds in holdingWindowList:
 
                         #Number of shipments consolidated for one order.
                         number_of_shipments_consolidated += 1
+
+                        if number_of_shipments_consolidated == 2:
+                            analysisNumberOfShipmentsThatWereConsolidated += 1
+                            analysisNumberOfShipmentsConsolidateInto += 1
+                        if number_of_shipments_consolidated > 2:
+                            analysisNumberOfShipmentsThatWereConsolidated += 1
 
                         #shipMap = [["New Shipment ID", "Old Shipment ID", "Original Parcel Type", "Sales Order ID"]]
                         #shipMap.append([shipNumber, current_row[0], current_row[13], current_row[9]])
@@ -287,6 +307,8 @@ for bounds in holdingWindowList:
                         shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
                         shipData.append(shipDataTemp)
 
+                        shipMap.extend(shipMapper(shipNumber, v, indices_to_use[alpha], "Consolidated LTL", "LTL", relative_shiptime))
+
                         shipNumber += 1
 
                         #Case 2: Parcel is cheaper, but it HAS to be sent as LTL
@@ -302,6 +324,9 @@ for bounds in holdingWindowList:
                         tempDateObj= datetime.datetime.strptime(str(shipTimesList[-1]), "%H.%M")
                         shipDataTemp.append(tempDateObj.strftime("%I:%M %p"))
                         shipData.append(shipDataTemp)
+
+                        shipMap.extend(shipMapper(shipNumber, v, indices_to_use[alpha], "Forced LTL", "LTL", relative_shiptime))
+
 
                         shipNumber += 1
 
@@ -375,8 +400,8 @@ for bounds in holdingWindowList:
 
                         else:
                             #If multipacking is not allowed, ship it individually.
-                            #Currently using the BIG ELSE stuff (because nothing changes there)
 
+                            analysisNumberOfShipmentsConsolidateInto -= 1
                             for shipment_index in indices_to_use[alpha]:
                                 shipDate, zipcode, customer = k.split("%")
                                 row = v[shipment_index]
@@ -386,13 +411,14 @@ for bounds in holdingWindowList:
 
                                 #TODO Maybe look at what the cheapest way of shipping is and then ship it that way. This will address cases in which it might have been cheaper to ship it differently.
                                 shipData.append([shipNumber, row[2], shipDate, zipcode, customer, row[13], row[5], 1, 0, row[13], row[12] + ", ineligible because of multipacking", row[10], row[10]])
-                                #shipMap.append([shipNumber, row[0], row[12], row[9]])
+                                shipMap.append([shipNumber, row[0], shipDate, row[12], row[12], "NO MULTIPACKING", row[10], row[10]])
 
                                 #This is already handled above
                                 #analysisTotalCost += float(row[13])
                                 analysisConsolidatedCost += float(row[13])
 
                                 shipNumber += 1
+                                analysisNumberOfShipmentsThatWereConsolidated -= 1
 
 
         else:
@@ -407,7 +433,7 @@ for bounds in holdingWindowList:
             #TODO Maybe look at what the cheapest way of shipping is and then ship it that way. This will address cases in which it might have been cheaper to ship it differently.
 
             shipData.append([shipNumber, row[2], shipDate, zipcode, customer, row[13], row[5], 1, 0, row[13], row[12], row[10], row[10]])
-            #shipMap.append([shipNumber, row[0], row[12], row[9]])
+            shipMap.append([shipNumber, row[0], shipDate, row[12], row[12], "Single Order in that window", row[10], row[10]])
 
             analysisTotalCost += float(row[13])
             analysisConsolidatedCost += float(row[13])
@@ -415,16 +441,16 @@ for bounds in holdingWindowList:
             shipNumber += 1
 
     #This list containts the details for the total costs, etc. depending on the different holding windows.
-    analysisList.append([str(bounds), analysisTotalCost, analysisConsolidatedCost, analysisTotalCost - analysisConsolidatedCost, analysisWeightTime])
+    analysisList.append([str(bounds), analysisTotalCost, analysisConsolidatedCost, analysisTotalCost - analysisConsolidatedCost, analysisWeightTime, analysisNumberOfShipmentsThatWereConsolidated, analysisNumberOfShipmentsConsolidateInto])
 
     #Write the adequate files, note that this currently this prints for each holding window.
     with open("output/out_shipData_" + str(bounds) +  ".csv", 'w') as outfile:
         writer = csv.writer(outfile, delimiter = ',')
         writer.writerows(shipData)
 
-    # with open("output/out_shipMap_" + str(bounds) +  ".csv", 'w') as outfile:
-    #     writer = csv.writer(outfile, delimiter = ',')
-    #     writer.writerows(shipMap)
+    with open("output/out_shipMap_" + str(bounds) +  ".csv", 'w') as outfile:
+        writer = csv.writer(outfile, delimiter = ',')
+        writer.writerows(shipMap)
 
 #Print some of the details across different holding windows.
 with open("output/analysis.csv", 'w') as outfile:
